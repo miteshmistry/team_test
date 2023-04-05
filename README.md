@@ -17,7 +17,15 @@ sudo apt-get install mysql-server
 # Installation
 Clone or download zip to your machine.
 
-# Command line options (directives):
+# Database configuration
+* Create a database with name: classes and import classes.sql file in mysql
+```php
+$db_host = 'localhost'; // localhost
+$db_user = 'root'; // mysql username
+$db_password = ''; // mysql password
+$db_name = 'classes'; // mysql database name
+```
+# Run the project - Command line options (directives):
 ```
 php user_upload.php
     --file [csv file name] - this is the name of the CSV to be parsed
@@ -28,18 +36,4 @@ php user_upload.php
     -p - MySQL password
     -h - MySQL host
     --help - which will output the above list of directives with details
-```
-
-# Database configuration
-* Create a database with name: classes and import classes.sql file in mysql
-```php
-$db_host = 'localhost'; // localhost
-$db_user = 'root'; // mysql username
-$db_password = ''; // mysql password
-$db_name = 'classes'; // mysql database name
-```
-
-# Run the project
-```php
-http://localhost/team_test
 ```
