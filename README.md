@@ -1,1 +1,1 @@
-# team_test
+# PHP script to import CSV data into MySQL database
