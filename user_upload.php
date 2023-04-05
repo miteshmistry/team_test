@@ -52,7 +52,7 @@ function update_db($csvname){
 				$row['0'] =  ucfirst(strtolower(trim($row['0'])));
 				$row['1'] =  ucfirst(strtolower(trim($row['1'])));
 				$row['2'] =  strtolower(trim($row['2']));
-				
+
 				$query = $conn1->prepare("INSERT INTO users (name, surname, email) VALUES (?,?,?)");
 				
 				$query->bind_param('sss', $row['0'], $row['1'], $row['2']);
@@ -68,9 +68,21 @@ function update_db($csvname){
 	$conn1->close();
 }
 
+function usage(){
+	echo("\nUsage: php user_upload.php\n\ncommand line options (directives):\n\n");
+	echo("  --file [csv file name] - this is the name of the CSV to be parsed\n\n");
+}
+
 function _main() {
 	
-	$csv_file = users.csv;
+	$inp = getopt("u:p:h:", array("file:") );
+	// var_dump($inp);
+	if($inp == 0) {
+		usage();
+		exit();
+	}
+
+	$csv_file = $inp["file"];
 
 	validate_csv($csv_file);
 
