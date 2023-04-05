@@ -22,8 +22,9 @@ function validate_csv($csvname){
 			if($i != 0) {
 					$row['2'] =  trim($row['2']);
 					// Validate email address
-												
-					if(filter_var($row[2], FILTER_VALIDATE_EMAIL)){
+					$email_validation_regex = "/^[a-zA-Z0-9!#$%&'*+\\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/"; 
+							
+					if(!preg_match($email_validation_regex, $row[2])){
 
 						echo("Wrong email format: " . $row[2] . "\n");
 						echo "Not inserted\n";
@@ -48,6 +49,10 @@ function update_db($csvname){
 		while(($row = fgetcsv($csv_file, 1000, ",")) != FALSE){
 			if($i != 0) {
 
+				$row['0'] =  ucfirst(strtolower(trim($row['0'])));
+				$row['1'] =  ucfirst(strtolower(trim($row['1'])));
+				$row['2'] =  strtolower(trim($row['2']));
+				
 				$query = $conn1->prepare("INSERT INTO users (name, surname, email) VALUES (?,?,?)");
 				
 				$query->bind_param('sss', $row['0'], $row['1'], $row['2']);
