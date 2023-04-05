@@ -70,6 +70,7 @@ function update_db($csvname, $exec=true, $db_host, $db_user, $db_password, $db_n
 function usage(){
 	echo("\nUsage: php user_upload.php\n\ncommand line options (directives):\n\n");
 	echo("  --file [csv file name] - this is the name of the CSV to be parsed\n\n");
+	echo("  --create_table - this will cause the MySQL users table to be built (and no further action will be taken)\n\n");
 	echo("  --dry_run - this will be used with the --file directive in case we want to run the script but not insert into the DB. All other functions will be executed, but the database won't be altered\n\n");
 	echo("  -u - MySQL username\n\n");
 	echo("  -p - MySQL password\n\n");
@@ -79,13 +80,13 @@ function usage(){
 
 function _main() {
 	
-	$inp = getopt("u:p:h:", array("file:", "dry-run", "help") );
+	$inp = getopt("u:p:h:", array("file:", "dry-run", "create_table", "help"));
 	// var_dump($inp);
 	if($inp == 0) {
 		// echo "No argument:";		
 		usage();
 		exit();
-	} else if(!$inp["u"] && !$inp["p"] && !$inp["h"] && $inp["help"] == NULL && !$inp["file"] && !$inp["dry-run"]) {
+	} else if(!$inp["u"] && !$inp["p"] && !$inp["h"] && $inp["help"] == NULL && !$inp["file"] && !$inp["dry-run"] && !isset($inp["create_table"])) {
 		// echo "With arguments";
 		usage();
 		exit();
@@ -96,10 +97,48 @@ function _main() {
 	$db_host = ($inp["h"]) ? $inp["h"] : 'localhost';
 	$db_name = 'classes';
 	$csv_file = $inp["file"];
+	
+	if(isset($inp["create_table"])) {
+		$create_table = true;
+	} else {
+		$create_table = false;
+	}
+	// echo "username: ". $db_user. "\n";
+	// echo "pass: ". $db_password. "\n";
+	// echo "host: ". $db_host. "\n";
+	// echo "db: ". $db_name. "\n";
+		
+	if($create_table) {
 
-	validate_csv($csv_file);
+		$conn = new mysqli($db_host, $db_user, $db_password, $db_name);
 
-	update_db($csv_file, !isset($inp["dry-run"]), $db_host, $db_user, $db_password, $db_name);		
+		if ($conn->connect_error) {
+			die("Connection failed: " . $conn->connect_error);
+		}
+		// sql to create table
+		$sql = "CREATE TABLE `users` (
+		`id` int(11) NOT NULL AUTO_INCREMENT,
+		`name` varchar(50) NOT NULL,
+		`surname` varchar(50) NOT NULL,
+		`email` varchar(100) NOT NULL,
+		PRIMARY KEY ( id ),
+		UNIQUE KEY `unique_email` (`email`) 
+		)";
+
+		if ($conn->query($sql) === TRUE) {
+		echo "Users table created successfully";
+		} else {
+		echo "Error creating table: " . $conn->error;
+		}
+
+		$conn->close();
+	} else {
+
+		validate_csv($csv_file);
+	
+		update_db($csv_file, !isset($inp["dry-run"]), $db_host, $db_user, $db_password, $db_name);		
+
+	}	
 
 }
 
