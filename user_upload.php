@@ -40,7 +40,7 @@ function validate_csv($csvname){
 
 }
 
-function update_db($csvname){
+function update_db($csvname,  $exec=true){
 		
 	global $conn1;
 
@@ -57,14 +57,20 @@ function update_db($csvname){
 				
 				$query->bind_param('sss', $row['0'], $row['1'], $row['2']);
 
-				$query->execute();
+				if($exec){
+					$res = $query->execute();
+				}
 
 			} $i++;
         	
 		}
 
 	}
-	
+	if($exec){
+		// echo ("adding records" . "\n");
+	} else {
+		// echo ("not adding records" . "\n");
+	}	
 	$conn1->close();
 }
 
@@ -75,9 +81,14 @@ function usage(){
 
 function _main() {
 	
-	$inp = getopt("u:p:h:", array("file:") );
+	$inp = getopt("u:p:h:", array("file:", "dry-run", "help") );
 	// var_dump($inp);
 	if($inp == 0) {
+		// echo "No argument:";		
+		usage();
+		exit();
+	} else if(!$inp["u"] && !$inp["p"] && !$inp["h"] && $inp["help"] == NULL && !$inp["file"] && !$inp["dry-run"]) {
+		// echo "With arguments";
 		usage();
 		exit();
 	}
@@ -86,7 +97,7 @@ function _main() {
 
 	validate_csv($csv_file);
 
-	update_db($csv_file);		
+	update_db($csv_file, !isset($inp["dry-run"]));		
 
 }
 
