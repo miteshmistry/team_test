@@ -1,17 +1,6 @@
 <?php 
 
-$db_host = 'localhost'; // localhost
-$db_user = 'root'; // mysql username
-$db_password = ''; // mysql password
-$db_name = 'classes'; // mysql database name
-
 date_default_timezone_set('EST');
-
-$conn1 = new mysqli($db_host, $db_user, $db_password, $db_name);
-
-if ($conn1->connect_error) {
-	die("Connection failed: " . $conn1->connect_error);
-}
 
 function validate_csv($csvname){
 	$ret = array();
@@ -40,9 +29,13 @@ function validate_csv($csvname){
 
 }
 
-function update_db($csvname,  $exec=true){
+function update_db($csvname, $exec=true, $db_host, $db_user, $db_password, $db_name){
 		
-	global $conn1;
+	$conn1 = new mysqli($db_host, $db_user, $db_password, $db_name);
+
+	if ($conn1->connect_error) {
+		die("Connection failed: " . $conn1->connect_error);
+	}
 
 	if(($csv_file = fopen($csvname, "r")) != FALSE){
 		$i = 0;
@@ -77,6 +70,11 @@ function update_db($csvname,  $exec=true){
 function usage(){
 	echo("\nUsage: php user_upload.php\n\ncommand line options (directives):\n\n");
 	echo("  --file [csv file name] - this is the name of the CSV to be parsed\n\n");
+	echo("  --dry_run - this will be used with the --file directive in case we want to run the script but not insert into the DB. All other functions will be executed, but the database won't be altered\n\n");
+	echo("  -u - MySQL username\n\n");
+	echo("  -p - MySQL password\n\n");
+	echo("  -h - MySQL host\n\n");
+	echo("  --help - which will output the above list of directives with details\n\n");	
 }
 
 function _main() {
@@ -93,11 +91,15 @@ function _main() {
 		exit();
 	}
 
+	$db_user = ($inp["u"]) ? $inp["u"] : 'root';
+	$db_password = ($inp["p"]) ? $inp["p"] : '';
+	$db_host = ($inp["h"]) ? $inp["h"] : 'localhost';
+	$db_name = 'classes';
 	$csv_file = $inp["file"];
 
 	validate_csv($csv_file);
 
-	update_db($csv_file, !isset($inp["dry-run"]));		
+	update_db($csv_file, !isset($inp["dry-run"]), $db_host, $db_user, $db_password, $db_name);		
 
 }
 
